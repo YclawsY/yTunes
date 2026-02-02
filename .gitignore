@@ -3,6 +3,8 @@
 *.db-journal
 *.db-wal
 *.db-shm
+.claude/
+ytm-cookies.txt
 
 # Generated album art (user-specific, fetched from APIs)
 album-art/

@@ -214,12 +214,12 @@ Eject Device
       </div>
       <div class="statusbar-right">
         <button id="syncToLibraryBtn" class="statusbar-btn" disabled title="Sync selected to Library">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
             <path d="M8 2v10M4 6l4-4 4 4"/>
           </svg>
         </button>
         <button id="syncToIpodBtn" class="statusbar-btn" disabled title="Sync selected to iPod">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
             <path d="M8 14V4M4 10l4 4 4-4"/>
           </svg>
         </button>
@@ -267,6 +267,38 @@ Eject Device
   </div>
 
   <audio id="audio"></audio>
+
+  <!-- YouTube Music Cookies Modal -->
+  <div id="ytmCookiesModal" class="modal-overlay hidden">
+    <div class="modal" style="max-width: 480px;">
+      <div class="modal-header">Connect YouTube Music</div>
+      <div class="modal-body">
+        <div id="cookiesDropZone" class="cookies-drop-zone">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="1.5">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/>
+          </svg>
+          <p>Drag & drop your cookies.txt file here</p>
+          <p class="drop-zone-or">or</p>
+          <label class="modal-btn primary" style="cursor: pointer;">
+            Browse for file
+            <input type="file" id="cookiesFileInput" accept=".txt" style="display: none;">
+          </label>
+        </div>
+        <div class="cookies-instructions">
+          <p><strong>How to export cookies:</strong></p>
+          <ol>
+            <li>Install a "cookies.txt" browser extension</li>
+            <li>Go to <a href="https://music.youtube.com" target="_blank">music.youtube.com</a> and sign in</li>
+            <li>Click the extension and export cookies</li>
+          </ol>
+        </div>
+        <div id="cookiesStatus" class="cookies-status hidden"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="ytmCookiesCancel" class="modal-btn secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>

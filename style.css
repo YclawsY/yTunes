@@ -1495,6 +1495,79 @@ body {
   color: #333;
 }
 
+/* Cookies drop zone */
+.cookies-drop-zone {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+  background: #fafafa;
+  transition: all 0.2s;
+}
+
+.cookies-drop-zone.dragover {
+  border-color: #2968c8;
+  background: #e8f0fb;
+}
+
+.cookies-drop-zone svg {
+  margin-bottom: 12px;
+}
+
+.cookies-drop-zone p {
+  margin: 4px 0;
+  color: #666;
+  font-size: 13px;
+}
+
+.drop-zone-or {
+  color: #999 !important;
+  font-size: 11px !important;
+  margin: 8px 0 !important;
+}
+
+.cookies-instructions {
+  margin-top: 16px;
+  padding: 12px;
+  background: #eee;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.cookies-instructions p {
+  margin: 0 0 8px;
+}
+
+.cookies-instructions ol {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.cookies-instructions li {
+  margin: 4px 0;
+}
+
+.cookies-instructions a {
+  color: #2968c8;
+}
+
+.cookies-status {
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.cookies-status.success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.cookies-status.error {
+  background: #f8d7da;
+  color: #721c24;
+}
+
 .new-playlist-btn {
   width: calc(100% - 16px);
   margin: 8px;

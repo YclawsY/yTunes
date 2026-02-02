@@ -1473,7 +1473,44 @@ const server = http.createServer((req, res) => {
     return;
   }
   
-  // Set YTM cookies path
+  // Upload YTM cookies file content
+  if (pathname === '/api/ytm/upload-cookies' && req.method === 'POST') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        const { content } = JSON.parse(body);
+        if (!content) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Cookies content required' }));
+          return;
+        }
+
+        // Validate it looks like a Netscape cookies file
+        if (!content.includes('youtube.com') && !content.includes('.youtube.com')) {
+          res.writeHead(400, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Invalid cookies file - must contain YouTube cookies' }));
+          return;
+        }
+
+        // Save to app directory
+        const cookiesPath = path.join(__dirname, 'ytm-cookies.txt');
+        fs.writeFileSync(cookiesPath, content);
+
+        stmts.setSetting.run('ytm_cookies_path', cookiesPath);
+        ytmCookiesPath = cookiesPath;
+
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ success: true }));
+      } catch (e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // Set YTM cookies path (legacy)
   if (pathname === '/api/ytm/set-cookies' && req.method === 'POST') {
     let body = '';
     req.on('data', chunk => body += chunk);
@@ -1485,17 +1522,17 @@ const server = http.createServer((req, res) => {
           res.end(JSON.stringify({ error: 'Cookies path required' }));
           return;
         }
-        
+
         // Validate file exists
         if (!fs.existsSync(cookiesPath)) {
           res.writeHead(400, { 'Content-Type': 'application/json' });
           res.end(JSON.stringify({ error: 'Cookies file not found' }));
           return;
         }
-        
+
         stmts.setSetting.run('ytm_cookies_path', cookiesPath);
         ytmCookiesPath = cookiesPath;
-        
+
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ success: true }));
       } catch (e) {

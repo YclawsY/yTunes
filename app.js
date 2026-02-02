@@ -430,66 +430,133 @@ class Ytunes {
   }
   
   async setYtmCookies() {
-    const cookiesPath = prompt(
-      'Enter path to YouTube Music cookies file:\n\n' +
-      'To export cookies from Firefox:\n' +
-      '1. Install "cookies.txt" extension\n' +
-      '2. Go to music.youtube.com and sign in\n' +
-      '3. Click the extension and export cookies\n' +
-      '4. Save the file and enter the path here'
-    );
-    
-    if (!cookiesPath) return;
-    
-    try {
-      const res = await fetch('/api/ytm/set-cookies', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ cookiesPath })
-      });
-      const data = await res.json();
-      
-      if (data.error) {
-        alert(`Error: ${data.error}`);
-        return;
+    // Show modal
+    const modal = document.getElementById('ytmCookiesModal');
+    const dropZone = document.getElementById('cookiesDropZone');
+    const fileInput = document.getElementById('cookiesFileInput');
+    const status = document.getElementById('cookiesStatus');
+    const cancelBtn = document.getElementById('ytmCookiesCancel');
+
+    modal.classList.remove('hidden');
+    status.classList.add('hidden');
+
+    const handleFile = async (file) => {
+      if (!file) return;
+
+      status.classList.remove('hidden', 'success', 'error');
+      status.textContent = 'Uploading...';
+
+      try {
+        const content = await file.text();
+        const res = await fetch('/api/ytm/upload-cookies', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content })
+        });
+        const data = await res.json();
+
+        if (data.error) {
+          status.classList.add('error');
+          status.textContent = `Error: ${data.error}`;
+          return;
+        }
+
+        status.classList.add('success');
+        status.textContent = 'Connected! Fetching your library...';
+
+        this.ytmConnected = true;
+        this.ytmStatus.classList.add('connected');
+        this.ytmStatus.classList.remove('disconnected');
+
+        // Switch to YTM source and start fetching automatically
+        setTimeout(() => {
+          modal.classList.add('hidden');
+          cleanup();
+          this.switchSource('ytm');
+          this.fetchYtmLibrary();
+        }, 800);
+      } catch (e) {
+        status.classList.add('error');
+        status.textContent = `Error: ${e.message}`;
       }
-      
-      this.ytmConnected = true;
-      this.ytmStatus.classList.add('connected');
-      this.ytmStatus.classList.remove('disconnected');
-      
-      // Offer to fetch library
-      if (confirm('YouTube Music connected! Fetch your library now?')) {
-        this.fetchYtmLibrary();
-      }
-    } catch (e) {
-      alert(`Error: ${e.message}`);
-    }
+    };
+
+    const onDragOver = (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    };
+
+    const onDragLeave = () => {
+      dropZone.classList.remove('dragover');
+    };
+
+    const onDrop = (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      handleFile(file);
+    };
+
+    const onFileSelect = (e) => {
+      handleFile(e.target.files[0]);
+    };
+
+    const onCancel = () => {
+      modal.classList.add('hidden');
+      cleanup();
+    };
+
+    const cleanup = () => {
+      dropZone.removeEventListener('dragover', onDragOver);
+      dropZone.removeEventListener('dragleave', onDragLeave);
+      dropZone.removeEventListener('drop', onDrop);
+      fileInput.removeEventListener('change', onFileSelect);
+      cancelBtn.removeEventListener('click', onCancel);
+    };
+
+    dropZone.addEventListener('dragover', onDragOver);
+    dropZone.addEventListener('dragleave', onDragLeave);
+    dropZone.addEventListener('drop', onDrop);
+    fileInput.addEventListener('change', onFileSelect);
+    cancelBtn.addEventListener('click', onCancel);
   }
   
   async fetchYtmLibrary() {
     try {
+      // Show loading state
+      this.trackCountEl.textContent = 'Fetching YouTube Music library...';
+
       const res = await fetch('/api/ytm/fetch', { method: 'POST' });
       const data = await res.json();
-      
+
       if (data.error) {
         alert(`Error: ${data.error}`);
+        this.trackCountEl.textContent = '0 songs';
         return;
       }
-      
+
       if (data.started) {
         // Poll for progress
         const pollInterval = setInterval(async () => {
           await this.checkYtmStatus();
           const status = await fetch('/api/ytm/status').then(r => r.json());
+
+          // Update main view with progress
+          if (status.fetching) {
+            this.trackCountEl.textContent = `Fetching... ${status.fetchProgress || 0} songs found`;
+            this.updateDeviceButton();
+          }
+
           if (!status.fetching) {
             clearInterval(pollInterval);
             this.checkYtmStatus();
+            this.updateDeviceButton();
+            // Always reload tracks when done if we're on YTM source
             if (this.currentSource === 'ytm') {
               this.loadYtmTracks();
             }
           }
-        }, 1000);
+        }, 500);
       }
     } catch (e) {
       alert(`Error: ${e.message}`);
@@ -784,10 +851,13 @@ class Ytunes {
   updateDeviceButton() {
     const deviceNameEl = document.getElementById('deviceName');
     const deviceCountEl = document.getElementById('deviceCount');
-    
+
     if (this.currentSource === 'library') {
       deviceNameEl.textContent = 'Localmolt';
       deviceCountEl.textContent = this.localCountEl.textContent;
+    } else if (this.currentSource === 'ytm') {
+      deviceNameEl.textContent = 'YouTube Music';
+      deviceCountEl.textContent = this.ytmCount.textContent;
     } else {
       deviceNameEl.textContent = this.ipodLabelEl.textContent || 'iPod';
       deviceCountEl.textContent = this.ipodCountEl.textContent;
@@ -1108,6 +1178,9 @@ class Ytunes {
     document.querySelectorAll('.device-menu-source').forEach(btn => {
       btn.classList.toggle('active', btn.dataset.source === this.currentSource);
     });
+
+    // Update device button to reflect current source
+    this.updateDeviceButton();
 
     // Load playlists for this source
     await this.loadPlaylists();
