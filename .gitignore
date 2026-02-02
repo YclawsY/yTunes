@@ -1,0 +1,23 @@
+# Database
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Generated album art (user-specific, fetched from APIs)
+album-art/
+
+# Generated genre art (user can regenerate, but we ship defaults)
+# Note: genre-art/ folder IS tracked for default images
+# Users can regenerate with their own API key
+
+# Logs
+*.log
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+ytunes-config.json

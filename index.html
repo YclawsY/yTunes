@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>yTunes</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Top Bar -->
+    <div class="topbar">
+      <div class="controls-left">
+        <div class="playback">
+          <button id="prevBtn" class="control-btn prev"></button>
+          <button id="playBtn" class="control-btn play"></button>
+          <button id="nextBtn" class="control-btn next"></button>
+        </div>
+        <div class="volume-slider">
+          <svg class="volume-icon" width="14" height="12" viewBox="0 0 14 12">
+            <path d="M1 4.5v3h2.5l3 2.5v-8l-3 2.5H1z" fill="#888"/>
+          </svg>
+          <input type="range" id="volume" class="volume" value="80" min="0" max="100">
+          <svg class="volume-icon" width="18" height="12" viewBox="0 0 18 12">
+            <path d="M1 4.5v3h2.5l3 2.5v-8l-3 2.5H1z" fill="#888"/>
+            <path d="M10 3.5c1 .5 1.5 1.5 1.5 2.5s-.5 2-1.5 2.5" stroke="#888" stroke-width="1.2" fill="none"/>
+            <path d="M11.5 1.5c1.8 1 2.5 2.8 2.5 4.5s-.7 3.5-2.5 4.5" stroke="#888" stroke-width="1.2" fill="none"/>
+          </svg>
+        </div>
+      </div>
+      
+      <!-- Center: Display box -->
+      <div class="center-section">
+        <div class="display-box">
+          <div id="displayContent" class="display-content">
+            <div id="nowPlaying" class="display-info">
+              <div id="nowTitle" class="now-title">Not Playing</div>
+              <div id="nowArtist" class="now-artist">—</div>
+              <div class="progress-row">
+                <span id="currentTime" class="time">0:00</span>
+                <div class="progress-wrapper">
+                  <input type="range" id="progress" class="progress" value="0" min="0" max="100">
+                </div>
+                <span id="duration" class="time">0:00</span>
+              </div>
+            </div>
+            <div class="display-logo-only">
+              <span class="display-logo">🦞</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="controls-right">
+        <div class="size-slider">
+          <input type="range" id="cardSize" class="card-size" value="140" min="80" max="220">
+        </div>
+        <div class="view-toggle">
+          <button id="viewList" class="view-btn" title="List view">☰</button>
+          <button id="viewGrid" class="view-btn active" title="Grid view">▦</button>
+        </div>
+        <form class="search-container" autocomplete="off" onsubmit="return false;">
+          <input type="search" id="search" name="q" placeholder="Search Music" autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');" data-1p-ignore="true" data-lpignore="true">
+        </form>
+      </div>
+    </div>
+
+    <!-- Main wrapper with sidebar -->
+    <div class="main-wrapper">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="sidebar-section">
+          <h3>Library</h3>
+          <ul class="nav-list">
+            <li class="nav-item" data-view="recently-added">Recently Added</li>
+            <li class="nav-item" data-view="artists">Artists</li>
+            <li class="nav-item" data-view="albums">Albums</li>
+            <li class="nav-item active" data-view="songs">Songs</li>
+            <li class="nav-item" data-view="genres">Genres</li>
+          </ul>
+        </div>
+        <div class="sidebar-section">
+          <h3>Playlists</h3>
+          <ul id="playlistsList" class="nav-list">
+            <!-- Playlists populated dynamically -->
+          </ul>
+          <button id="newPlaylistBtn" class="new-playlist-btn">+ New Playlist</button>
+        </div>
+        <div class="sidebar-section">
+          <h3>History</h3>
+          <ul class="nav-list">
+            <li class="nav-item" data-view="recently-played">Recently Played</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Right side: navbar + content -->
+      <div class="main-content">
+        <!-- Navigation Bar -->
+        <div class="navbar">
+          <div class="nav-section">
+            <!-- spacer left -->
+          </div>
+          <div class="nav-section nav-center">
+            <div class="content-tabs">
+              <button class="content-tab" data-view="albums">Albums</button>
+              <button class="content-tab" data-view="artists">Artists</button>
+              <button class="content-tab" data-view="genres">Genres</button>
+              <button class="content-tab active" data-view="songs">Songs</button>
+            </div>
+          </div>
+          <div class="nav-section device-section">
+            <div class="device-dropdown">
+              <button id="deviceBtn" class="device-btn">
+                <span id="deviceName">Localmolt</span>
+                <span id="deviceCount" class="device-btn-count">0</span>
+                <span class="dropdown-arrow">▾</span>
+              </button>
+              <div id="deviceMenu" class="device-menu hidden">
+                <div class="device-menu-section">
+                  <div class="device-menu-header">SOURCES</div>
+                  <button class="device-menu-source active" data-source="library">
+                    <span class="source-name">Localmolt</span>
+                    <span id="localCount" class="source-count">0</span>
+                  </button>
+                  <button id="ipodSource" class="device-menu-source" data-source="ipod">
+                    <span id="ipodLabel" class="source-name">iPod</span>
+                    <span id="ipodCount" class="source-count">0</span>
+                    <span id="connectionStatus" class="connection-dot disconnected">●</span>
+                  </button>
+                  <button id="ytmSource" class="device-menu-source" data-source="ytm">
+                    <span class="source-name">YouTube Music</span>
+                    <span id="ytmCount" class="source-count">0</span>
+                    <span id="ytmStatus" class="connection-dot disconnected">●</span>
+                  </button>
+                </div>
+                <div class="device-menu-divider"></div>
+                <div class="device-menu-section">
+                  <div class="device-menu-header">ACTIONS</div>
+                  <button id="refreshBtn" class="device-menu-item">
+Refresh Devices
+                  </button>
+                  <button id="setYtmCookiesBtn" class="device-menu-item">
+Connect YouTube Music...
+                  </button>
+                  <button id="ejectBtn" class="device-menu-item eject" disabled>
+Eject Device
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content">
+        <!-- Grid View -->
+        <div id="gridView" class="grid-view">
+          <div class="loading">Loading library...</div>
+        </div>
+        
+        <!-- List View -->
+        <div id="listView" class="list-view hidden">
+          <div class="table-header">
+            <div class="col col-check"><input type="checkbox" id="selectAll" title="Select all"></div>
+            <div class="col col-num">#</div>
+            <div class="col col-title sortable" data-sort="title">Name</div>
+            <div class="col col-artist sortable" data-sort="artist">Artist</div>
+            <div class="col col-album sortable" data-sort="album">Album</div>
+            <div class="col col-genre sortable" data-sort="genre">Genre</div>
+            <div class="col col-duration sortable" data-sort="duration">Time</div>
+          </div>
+          <div id="trackList" class="track-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- Progress Bar (for syncing) -->
+    <div id="progressBar" class="progress-bar hidden">
+      <div class="progress-info">
+        <span id="progressIcon" class="progress-icon">↓</span>
+        <span id="progressText" class="progress-text">Syncing...</span>
+      </div>
+      <div class="progress-bar-inner">
+        <div id="progressFill" class="progress-bar-fill"></div>
+      </div>
+      <div class="progress-stats">
+        <span id="progressCount">0 of 0</span>
+      </div>
+      <div class="progress-controls">
+        <button id="pauseSyncBtn" class="progress-btn" title="Pause">❚❚</button>
+        <button id="stopSyncBtn" class="progress-btn stop" title="Stop">✕</button>
+      </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="statusbar">
+      <div class="statusbar-left">
+        <button id="shuffleBtn" class="statusbar-btn" title="Shuffle">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M2 4h3l3 4-3 4H2M14 4h-3l-1.5 2M14 12h-3l-1.5-2M14 4v3M14 12V9"/>
+          </svg>
+        </button>
+        <button id="repeatBtn" class="statusbar-btn" title="Repeat">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M3 6h10l-2-2M13 10H3l2 2"/>
+          </svg>
+        </button>
+      </div>
+      <div class="statusbar-center">
+        <span id="trackCount">0 songs</span>
+        <span id="totalTime"></span>
+      </div>
+      <div class="statusbar-right">
+        <button id="syncToLibraryBtn" class="statusbar-btn" disabled title="Sync selected to Library">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 2v10M4 6l4-4 4 4"/>
+          </svg>
+        </button>
+        <button id="syncToIpodBtn" class="statusbar-btn" disabled title="Sync selected to iPod">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 14V4M4 10l4 4 4-4"/>
+          </svg>
+        </button>
+        <div id="albumArtNotice" class="album-art-notice hidden">
+          <button id="fetchArtBtn" class="statusbar-btn art-btn" title="Fetch missing album art">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <rect x="1" y="3" width="14" height="10" rx="1" fill="none" stroke="currentColor" stroke-width="1.2"/>
+              <circle cx="5" cy="7" r="1.5" fill="currentColor"/>
+              <path d="M3 11l3-3 2 2 4-4 3 3" stroke="currentColor" stroke-width="1" fill="none"/>
+            </svg>
+            <span id="missingArtCount" class="art-badge">0</span>
+          </button>
+          <div id="artTooltip" class="art-tooltip">
+            <span id="artTooltipText">Fetch album art?</span>
+            <div class="art-tooltip-actions">
+              <button id="fetchArtConfirm" class="art-tooltip-btn primary">Fetch</button>
+              <button id="fetchArtDismiss" class="art-tooltip-btn">Later</button>
+            </div>
+          </div>
+        </div>
+        <div id="genreArtNotice" class="album-art-notice">
+          <button id="genGenreArtBtn" class="statusbar-btn art-btn" title="Genre artwork">
+            <svg width="16" height="16" viewBox="0 0 16 16">
+              <rect x="1" y="2" width="14" height="12" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/>
+              <circle cx="5" cy="6" r="1.5" fill="currentColor"/>
+              <path d="M1 12l4-4 2.5 2.5L11 7l4 5" stroke="currentColor" stroke-width="1.2" fill="none" stroke-linejoin="round"/>
+            </svg>
+            <span id="missingGenreCount" class="art-badge genre-badge hidden">0</span>
+          </button>
+          <div id="genreArtTooltip" class="art-tooltip">
+            <span id="genreArtTooltipText">Generate genre covers?</span>
+            <div id="genreApiKeyInput" class="genre-api-key-input" style="display:none;">
+              <input type="password" id="openrouterKeyInput" placeholder="Enter OpenRouter API key" />
+              <a href="https://openrouter.ai/keys" target="_blank" class="api-key-link">Get key</a>
+            </div>
+            <div class="art-tooltip-actions">
+              <button id="genGenreArtMissing" class="art-tooltip-btn primary">Generate Missing</button>
+              <button id="genGenreArtAll" class="art-tooltip-btn">Regenerate All</button>
+              <button id="genGenreArtDismiss" class="art-tooltip-btn">Later</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <audio id="audio"></audio>
+
+  <script src="app.js"></script>
+</body>
+</html>

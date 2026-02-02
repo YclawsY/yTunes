@@ -1,0 +1,24 @@
+{
+  "name": "ytunes",
+  "version": "1.0.0",
+  "description": "A nostalgic music player inspired by classic iTunes, built for managing iPod Classic devices on Linux.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YclawsY/yTunes.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/YclawsY/yTunes/issues"
+  },
+  "homepage": "https://github.com/YclawsY/yTunes#readme",
+  "dependencies": {
+    "better-sqlite3": "^12.6.2"
+  }
+}
